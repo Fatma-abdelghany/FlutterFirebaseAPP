@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -8,6 +10,9 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  TextEditingController userName= TextEditingController();
+  TextEditingController password= TextEditingController();
+  TextEditingController Email= TextEditingController();
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -21,7 +26,8 @@ class _SignUpState extends State<SignUp> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
 
-            const TextField(
+             TextField(
+              controller: userName,
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -29,7 +35,8 @@ class _SignUpState extends State<SignUp> {
             ),
           ),
           const SizedBox(height: 20,),
-              const TextField(
+               TextField(
+                controller: Email,
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
@@ -38,7 +45,8 @@ class _SignUpState extends State<SignUp> {
               ),
               const SizedBox(height: 20,),
 
-          const TextField(
+           TextField(
+             controller: password,
             obscureText: true,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
@@ -51,10 +59,22 @@ class _SignUpState extends State<SignUp> {
           Container(
             width:double.infinity ,
             child: ElevatedButton(
-                onPressed: (){
-                  setState(() {
-
-                  });
+                onPressed: ()async{
+                  try {
+                    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                        email: Email.text,
+                        password: password.text
+                    );
+                    context.go("/home");
+                  } on FirebaseAuthException catch (e) {
+                    if (e.code == 'weak-password') {
+                      print('The password provided is too weak.');
+                    } else if (e.code == 'email-already-in-use') {
+                      print('The account already exists for that email.');
+                    }
+                  } catch (e) {
+                    print(e);
+                  }
                 },
                 child: const Text(
                     "Sign Up"
@@ -62,9 +82,10 @@ class _SignUpState extends State<SignUp> {
           ),
 
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Don't Have An Account ?"),
-              TextButton(onPressed: (){}, child: Text("Register"))
+              Text("Create Account"),
+              TextButton(onPressed: (){context.go( "/login");}, child: Text("Login"))
             ],
           )
 

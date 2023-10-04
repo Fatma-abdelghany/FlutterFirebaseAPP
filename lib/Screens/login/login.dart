@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 class LoginScreen extends StatefulWidget {
@@ -43,10 +44,20 @@ class _LoginScreenState extends State<LoginScreen> {
               Container(
                 width:double.infinity ,
                 child: ElevatedButton(
-                    onPressed: (){
-                      setState(() {
-
-                      });
+                    onPressed: ()async{
+                      try {
+                        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                            email: "barry.allen@example.com",
+                            password: "SuperSecretPassword!"
+                        );
+                        context.go("/home");
+                      } on FirebaseAuthException catch (e) {
+                        if (e.code == 'user-not-found') {
+                          print('No user found for that email.');
+                        } else if (e.code == 'wrong-password') {
+                          print('Wrong password provided for that user.');
+                        }
+                      }
                     },
                     child: const Text(
                         "Login"
@@ -57,8 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Login"),
-                    TextButton(onPressed: (){context.go("/login");}, child: Text("Register"))
+                    Text("Have An Account ?"),
+                    TextButton(onPressed: (){context.go("/signUP");}, child: Text("Register"))
                   ],
                 ),
               )
